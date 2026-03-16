@@ -58,11 +58,14 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-// User-Assigned Managed Identity for the SQL deployment script
-resource scriptsIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${abbrs.managedIdentityUserAssignedIdentities}scripts-${resourceToken}'
-  location: location
-  tags: tags
+// User-Assigned Managed Identity for the SQL deployment scripts to use for authentication with the database during deployment.
+module scriptsIdentity 'core/identity/scriptsIdentity.bicep' = {
+  name: 'scriptsIdentity'
+  params: {
+    name: '${abbrs.managedIdentityUserAssignedIdentities}scripts-${resourceToken}'
+    location: location
+    tags: tags
+  }
   scope: rg
 }
 
@@ -116,8 +119,8 @@ module database 'core/database/sqlserver/sqlserver.bicep' = {
     connectionStringKey: 'ConnectionStrings--MyDemoDb'
     sqlAdminPassword: dbAdminPassword
     appServiceName: webAppName
-    scriptIdentityId: scriptsIdentity.id
-    scriptIdentityPrincipalId: scriptsIdentity.properties.principalId
+    scriptIdentityId: scriptsIdentity.outputs.id
+    scriptIdentityPrincipalId: scriptsIdentity.outputs.principalId
   }
   scope: rg
 }

@@ -13,9 +13,6 @@
       },
       "dbAdminPassword": {
         "value": "$(secretOrRandomPassword ${AZURE_KEY_VAULT_NAME} dbAdminPassword)"
-      },
-      "dbAppUserPassword": {
-        "value": "$(secretOrRandomPassword ${AZURE_KEY_VAULT_NAME} dbAppUserPassword)"
       }
     }
 }

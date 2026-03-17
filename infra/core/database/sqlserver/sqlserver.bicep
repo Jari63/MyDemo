@@ -5,6 +5,7 @@ param tags object = {}
 param logAnalyticsWorkspaceId string = ''
 
 param appServiceName string
+param appServicePrincipalId string
 param databaseName string
 param keyVaultName string
 param sqlAdmin string = 'sqlAdmin'
@@ -150,6 +151,10 @@ resource sqlDeploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
         value: appServiceName
       }
       {
+        name: 'APPSERVICEPRINCIPALID'
+        value: appServicePrincipalId
+      }
+      {
         name: 'DBNAME'
         value: databaseName
       }
@@ -166,7 +171,7 @@ tar x -f sqlcmd-v0.8.1-linux-x64.tar.bz2 -C .
 cat <<SCRIPT_END > ./initDb.sql
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'${APPSERVICENAME}')
 BEGIN
-  CREATE USER [${APPSERVICENAME}] FROM EXTERNAL PROVIDER
+  CREATE USER [${APPSERVICENAME}] FROM EXTERNAL PROVIDER WITH OBJECT_ID = '${APPSERVICEPRINCIPALID}'
 END
 GO
 ALTER ROLE db_owner ADD MEMBER [${APPSERVICENAME}]

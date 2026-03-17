@@ -119,6 +119,7 @@ module database 'core/database/sqlserver/sqlserver.bicep' = {
     connectionStringKey: 'ConnectionStrings--MyDemoDb'
     sqlAdminPassword: dbAdminPassword
     appServiceName: webAppName
+    appServicePrincipalId: web.outputs.identityPrincipalId
     scriptIdentityId: scriptsIdentity.outputs.id
     scriptIdentityPrincipalId: scriptsIdentity.outputs.principalId
   }

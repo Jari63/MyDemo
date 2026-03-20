@@ -29,6 +29,9 @@ param dbName string = ''
 @secure()
 param dbAdminPassword string
 
+@secure()
+param dbAppUserPassword string
+
 var abbrs = loadJsonContent('./abbreviations.json')
 
 // Tags that should be applied to all resources.
@@ -49,24 +52,12 @@ var resourceToken = toLower(uniqueString(subscription().id, environmentName, loc
 // Example usage:
 //   tags: union(tags, { 'azd-service-name': apiServiceName })
 var webServiceName = 'web'
-var webAppName = !empty(appServiceName) ? appServiceName : '${abbrs.webSitesAppService}${resourceToken}'
 
 // Organize resources in a resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
   location: location
   tags: tags
-}
-
-// User-Assigned Managed Identity for the SQL deployment scripts to use for authentication with the database during deployment.
-module scriptsIdentity 'core/identity/scriptsIdentity.bicep' = {
-  name: 'scriptsIdentity'
-  params: {
-    name: '${abbrs.managedIdentityUserAssignedIdentities}scripts-${resourceToken}'
-    location: location
-    tags: tags
-  }
-  scope: rg
 }
 
 // Add resources to be provisioned below.
@@ -97,7 +88,7 @@ module keyVault 'core/security/keyvault.bicep' = {
 module web 'services/web.bicep' = {
   name: 'web'
   params: {
-    name: webAppName
+    name: !empty(appServiceName) ? appServiceName : '${abbrs.webSitesAppService}${resourceToken}'
     location: location
     tags: tags
     serviceName: webServiceName
@@ -118,10 +109,7 @@ module database 'core/database/sqlserver/sqlserver.bicep' = {
     keyVaultName: keyVault.outputs.name
     connectionStringKey: 'ConnectionStrings--MyDemoDb'
     sqlAdminPassword: dbAdminPassword
-    appServiceName: webAppName
-    appServicePrincipalId: web.outputs.identityPrincipalId
-    scriptIdentityId: scriptsIdentity.outputs.id
-    scriptIdentityPrincipalId: scriptsIdentity.outputs.principalId
+    appUserPassword: dbAppUserPassword
   }
   scope: rg
 }

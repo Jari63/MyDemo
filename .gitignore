@@ -486,3 +486,5 @@ $RECYCLE.BIN/
 *.swp
 .azure
 .errordocs
+/src/Web/appsettings.development.json
+/.prettierrc

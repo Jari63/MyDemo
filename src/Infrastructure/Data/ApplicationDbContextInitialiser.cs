@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyDemo.Infrastructure.Data;
 
@@ -47,6 +48,32 @@ public class ApplicationDbContextInitialiser
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while initialising the database.");
+            throw;
+        }
+    }
+
+    public async Task DropAsync()
+    {
+        try
+        {
+            await _context.Database.EnsureDeletedAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while dropping the database.");
+            throw;
+        }
+    }
+
+    public async Task MigrateAsync()
+    {
+        try
+        {
+            await _context.Database.MigrateAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while migrating the database.");
             throw;
         }
     }

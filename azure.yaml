@@ -7,3 +7,9 @@ services:
     language: csharp
     project: ./src/Web
     host: appservice
+hooks:
+  postdeploy:
+    shell: sh
+    run: |
+      export ConnectionStrings__MyDemoDb="$SQLAZURECONNECTIONSTRING"
+      dotnet run --project src/TestDataGen

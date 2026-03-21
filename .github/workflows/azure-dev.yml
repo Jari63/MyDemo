@@ -39,6 +39,13 @@ jobs:
         with:
           global-json-file: 'global.json'
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'src/Web/ClientApp/package-lock.json'
+
       - name: Log in with Azure (Federated Credentials)
         run: |
           azd auth login `
